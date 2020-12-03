@@ -3,4 +3,6 @@ target
 .metals
 .vscode
 .bloop
-project/project
+project/project.idea
+.idea
+project/project/
