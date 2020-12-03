@@ -13,45 +13,45 @@ package optional_braces:
    * 
    * Refactor this class declaration so that it does not utilize curly braces.
    */
-  class ClassDecl {
+  class ClassDecl:
     def run() = println("Hello World!")
-  }
+
 
   /**
    * EXERCISE 2
    * 
    * Refactor this trait declaration so that it does not utilize curly braces.
    */
-  trait TraitDecl {
+  trait TraitDecl:
     def run() = println("Hello World!")
-  }
+
 
   /**
    * EXERCISE 3
    * 
    * Refactor this object body so that it does not utilize curly braces.
    */
-  object ObjectBody {
+  object ObjectBody:
     def run() = println("Hello World!")
-  }
+
 
   /**
    * EXERCISE 4
    * 
    * Refactor this anonymous class so that it does not utilize curly braces.
    */
-  val anonClass = new TraitDecl {
+  val anonClass = new TraitDecl:
     def runMore() = println("Goodbye World!")
-  }
+
 
   /**
    * EXERCISE 5
    * 
    * Refactor this package declaration so that it does not utilize curly braces.
    */
-  package package_decl {
+  package package_decl:
     def runEvenMore() = println("See you later!")
-  }
+
 
   /**
    * EXERCISE 6
@@ -59,43 +59,43 @@ package optional_braces:
    * Refactor this `if` statement so that it does not utilize curly braces:
    */
   def conditional() = 
-    if (2 + 2 != 4) {
+    if (2 + 2 != 4)
+      println("hello!")
       throw new IllegalStateException("The universe is broken")
-    }
 
-  /**
+
+
+/**
    * EXERCISE 7
    * 
    * Refactor this if/else statement so that it does not utilize curly braces.
    */
-  def conditional2() = 
-    if ("Sherlock Holmes".startsWith("Sher")) {
+  def conditional2() =
+    if ("Sherlock Holmes".startsWith("Sher"))
       println("He is sure!")
-    } else {
+    else
       println("He is uncertain!")
-    }
 
   /**
    * EXERCISE 8
    * 
    * Refactor this match clause so that it does not utilize curly braces.
    */
-  def joke(v: String) = 
-    v match {
+  def joke(v: String) =
+    v match
       case "knock, knock" => println("Who's there?")
       case _ => println("Unknown input!")
-    }
+    // case mustn't be indented. But it's ugly :)
 
-  /**
+/**
    * EXERCISE 9
    * 
    * Refactor this method body so that it does not utilize curly braces.
    */
-  def whatIsYourName = {
+  def whatIsYourName =
     println("What is your name?")
     val name = scala.io.StdIn.readLine()
     println(s"Hello, ${name}!")
-  }
 
   /**
    * EXERCISE 9
@@ -103,12 +103,11 @@ package optional_braces:
    * Refactor this try/catch so that it does not utilize curly braces.
    */
   def tryItAndCatchIt = 
-    try {
+    try
       throw new IllegalStateException("Wyoming")
-    } catch {
+    catch
       case _ : IllegalStateException => println("That state is illegal!")
-    }
-  
+
   /**
    * EXERCISE 10
    * 
@@ -116,25 +115,23 @@ package optional_braces:
    */
   def forComprehension =
     val numbers = List(1, 2, 9, 3, -1, 6, 5, 2)
-
-    for {
-      number1 <- numbers 
-      number2 <- numbers 
+    for
+      number1 <- numbers
+      number2 <- numbers
       if ((number1 - number2).abs == 2)
-    } yield (number1, number2)
+    yield
+      (number1, number2)
 
   /**
    * EXERCISE 11
    * 
    * Refactor this `while` loop so that it does not utilize curly braces.
    */
-  def whileLoop(n: Int) = 
-    var i = 0 
-
-    while (i < n) {
+  def whileLoop(n: Int) =
+    var i = 0
+    while (i < n)
       println("All work and no play makes Jack a dull boy")
       i = i + 1
-    }
 
   /**
    * EXERCISE 12
@@ -143,15 +140,18 @@ package optional_braces:
    */
   abstract class UserRepository:
     def getUserName(id: String): String
+  end UserRepository
   
   /**
    * EXERCISE 13
    * 
    * Add an explicit end marker to this braceless conditional.
    */
-  def conditional3(answer: Int) = 
+  def conditional3(answer: Int) =
     if (answer == 42)
       println("The answer to the meaning of life, the universe, and everything.")
+    end if
+  end conditional3
   
   /**
    * EXERCISE 14
@@ -167,22 +167,24 @@ package optional_braces:
     println("......")
     println(".......")
     println("........")
-
-  /**
+  end tooBigMethod
+/**
    * EXERCISE 15
    * 
    * Add an explicit end marker to this braceless try/catch block.
    */
-  def tryItAndCatchItAgain = 
+  def tryItAndCatchItAgain = {
     try
       throw new IllegalStateException("Wyoming")
     catch
       case _ : IllegalStateException => println("That state is illegal!")
+    end try
+  }
 
-  /*
-   * Optional braces apply to other constructs not yet introduced, including enums, givens, and 
-   * extensions! You will learn more about this syntax as these new features are introduced.
-   */
+/*
+ * Optional braces apply to other constructs not yet introduced, including enums, givens, and
+ * extensions! You will learn more about this syntax as these new features are introduced.
+ */
 
 /**
  * CONTROL FLOW SYNTAX
@@ -198,22 +200,23 @@ package control_flow:
    * Refactor this `if` statement to eliminate parentheses using the `then` keyword.
    */
   def conditional(x: Int) = 
-    if (x > 0) println("Positive")
-    else println("Non-positive")
+    if x > 0 then
+      println("Positive")
+    else
+      println("Non-positive")
 
   /**
    * EXERCISE 2
    * 
    * Refactor this `while` loop to eliminate parentheses using the `do` keyword.
    */
-  def repeatN(n: Int)(body: () => Unit): Unit = 
-    var i = 0 
+  def repeatN(n: Int)(body: () => Unit): Unit =
+    var i = 0
 
-    while (i < n) {
+    while i < n do 
       body()
-      i = i + 1 
-    }
-
+      i = i + 1
+    
   /**
    * EXERCISE 3
    * 
@@ -222,4 +225,6 @@ package control_flow:
   def forComprehension = 
     val numbers = List(1, 2, 9, 3, -1, 6, 5, 2)
 
-    for (i <- numbers) yield i * i
+    for i <- numbers yield i * i
+
+

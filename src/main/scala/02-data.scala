@@ -21,24 +21,18 @@ package enums:
    * 
    * Convert this "sealed trait" to an enum.
    */
-  sealed trait DayOfWeek
-  object DayOfWeek:
-    case object Sunday extends DayOfWeek
-    case object Monday extends DayOfWeek
-    case object Tuesday extends DayOfWeek
-    case object Wednesday extends DayOfWeek
-    case object Thursday extends DayOfWeek
-    case object Friday extends DayOfWeek
-    case object Saturday extends DayOfWeek
+  enum DayOfWeek:  
+    case Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday 
 
+  //It forces you to comply to scala2's convention of putting the values into the companion object
   /**
    * EXERCISE 2
    * 
    * Explore interop with Java enums by finding all values of `DayOfWeek`, and by 
    * finding the value corresponding to the string "Sunday".
    */
-  def daysOfWeek: Array[DayOfWeek] = ???
-  def sunday: DayOfWeek = ???
+  def daysOfWeek: Array[DayOfWeek] = DayOfWeek.values //yay - java method. But this only works if none of the enum-cases has a parameter
+  def sunday: DayOfWeek = DayOfWeek.valueOf("Sunday") //will blow up at runtime though
 
   /**
    * EXERCISE 3
@@ -47,12 +41,43 @@ package enums:
    * 
    * Take special note of the inferred type of any of the case constructors!
    */
-  sealed trait Color 
-  object Color:
-    case object Red extends Color 
-    case object Green extends Color 
-    case object Blue extends Color
-    final case class Custom(red: Int, green: Int, blue: Int) extends Color
+  enum Color:
+    case Red
+    case Green
+    case Blue
+    case Custom(red: Int, green: Int, blue: Int)
+
+  //yay, this is of tpe Color now. With sealed trait encoding it'd be inferred as type Color.Custom and we were able to upcast it.
+  //you can still achieve the scala2 behavior like this
+  // val custom: Color.Custom = Color.Custom(12,123,123)
+  // val custom: Color.Custom = new Color.Custom(12,123,123) //this will automatically infer Color.Custom
+  val custom: Color = Color.Custom(12,123,123) 
+
+  val foo = List(1,2,3).foldLeft(Option.empty[Int]) {
+    case (None, i) if i == 2 => Some(i)
+    case (opt, _)            => opt
+  }
+  // this is very helpful in e.g. in folds. in the example above we have to write 
+  // .foldLeft(Option.empty[Int]) and can't use .foldLeft(None), because Option is (still) not modelled as an enum
+  
+  //this works just fine :)
+  val bar = List(1,2,3).foldLeft(Color.Red) {
+    case (Color.Red, i) if i == 2 => Color.Custom(i,i,i)
+    case (opt, _)            => opt
+  }
+
+  // so it's time for us to introduce or own Option-type :)
+  /*
+  enum Maybe[+T]:
+    case None
+    case Some(v: T)
+
+  val x = List(1,2,3).foldLeft(Maybe.None) {
+    case (Maybe.None, i) if i == 2 => Maybe.Some(i)
+    case (opt, _)            => opt
+  }
+  //wasn't able to get it to compile
+  */
 
   /**
    * EXERCISE 4
@@ -61,10 +86,9 @@ package enums:
    * 
    * Take special note of the inferred type parameters in the case constructors!
    */
-  sealed trait Result[+Error, +Value]
-  object Result:
-    final case class Succeed[Value](value: Value) extends Result[Nothing, Value]
-    final case class Fail[Error](error: Error) extends Result[Error, Nothing]
+  enum Result[+Error, +Value]:
+    case Succeed(value: Value)
+    case Fail(error: Error)
 
   /**
    * EXERCISE 5
@@ -73,19 +97,21 @@ package enums:
    * 
    * Take special note of the inferred type parameters in the case constructors!
    */
-  sealed trait Workflow[-Input, +Output]
-  object Workflow:
-    final case class End[Output](value: Output) extends Workflow[Any, Output]
+  enum Workflow[-Input, +Output]:
+    case End(value: Output)
 
   /**
    * EXERCISE 6
    * 
    * Convert this "sealed trait" to an enum.
    */
-  sealed trait Conversion[-From, +To]
-  object Conversion:
-    case object AnyToString extends Conversion[Any, String]
-    case object StringToInt extends Conversion[String, Option[Int]]
+  enum Conversion[-From, +To]:  
+    case AnyToString extends Conversion[Any, String]
+    case StringToInt extends Conversion[String, Option[Int]]
+
+    //defining GADT's is a bit more verbose, but scalac cannot guess what you want :)
+  val c = Conversion.AnyToString
+
 
 /**
  * CASE CLASSES
@@ -99,11 +125,13 @@ package case_classes:
    * By making the public constructor private, make a smart constructor for `Email` so that only 
    * valid emails may be created.
    */
-  final case class Email(value: String)
+  final case class Email private (value: String)
   object Email:
-    def fromString(v: String): Option[Email] = ???
+    def fromString(v: String): Option[Email] = 
+      if isValidEmail(v) then Some(Email(v)) else None
 
     def isValidEmail(v: String): Boolean = v.matches("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$")
+  
 
   /**
    * EXERCISE 2
@@ -111,7 +139,7 @@ package case_classes:
    * Try to make a copy of an existing `Email` using `Email#copy` and note what happens.
    * 
    */
-  def changeEmail(email: Email): Email = ???
+  def changeEmail(email: Email): Email = ??? //email.copy(email = "not a real email!") //yay - the private keyword also makes the copy-method private :)
 
   /**
    * EXERCISE 3
@@ -119,7 +147,7 @@ package case_classes:
    * Try to create an Email directly by using the generated constructor in the companion object.
    * 
    */
-  def caseClassApply(value: String): Email = ???
+  def caseClassApply(value: String): Email = ??? //Email("broken") //now this doesn't compile either, since the apply method is also private
 
 /**
  * PATTERN MATCHING

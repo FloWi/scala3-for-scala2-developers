@@ -32,7 +32,7 @@ object intersection_types:
    * Form the intersection of the types `HasLogging` and `HasUserRepo` by using the type 
    * intersection operator `&`.
    */
-  type HasLoggingAndUserRepo
+  type HasLoggingAndUserRepo = HasLogging & HasUserRepo
 
   /**
    * EXERCISE 2
@@ -40,9 +40,11 @@ object intersection_types:
    * Using the `IsEqual` helper method, test to see if the type `HasLogging & HasUserRepo` is the 
    * same as the type `HasUserRepo & HasLogging`.
    */
-  // IsEqual ...
+  IsEqual[HasLogging & HasUserRepo, HasUserRepo & HasLogging]
 
   def IsEqual[A, B](using ev: A =:= B) = ()
+
+
 
   /**
    * EXERCISE 3
@@ -51,7 +53,11 @@ object intersection_types:
    * 
    * Create class that has the type `HasUserRepo & HasLogging`.
    */
-  class BothUserRepoAndLogging
+  class BothUserRepoAndLogging extends HasUserRepo with HasLogging:
+    def logging: Logging = ???
+    def userRepo: UserRepo = ???
+
+  val orderingDoesntMatter: HasLogging & HasUserRepo = new BothUserRepoAndLogging
 
 /**
  * UNION TYPES
@@ -80,7 +86,7 @@ object union_types:
    * Create a value of type `PaymentDeniedOrMissingAddress` by assigning the following variable to 
    * a `PaymentDenied` error.
    */
-  val example1: PaymentDeniedOrMissingAddress = ???
+  val example1: PaymentDeniedOrMissingAddress = PaymentDenied("Your payment was denied")
 
   /**
    * EXERCISE 3
@@ -88,7 +94,7 @@ object union_types:
    * Create a value of type `PaymentDeniedOrMissingAddress` by assigning the following variable to 
    * a `MissingAddress` error.
    */
-  val example2: PaymentDeniedOrMissingAddress = ???
+  val example2: PaymentDeniedOrMissingAddress = MissingAddress("Your address is missing")
 
   /**
    * EXERCISE 4
@@ -96,7 +102,9 @@ object union_types:
    * Perform a pattern match on `example2`, covering each possibility and printing out the 
    * error messages to the console.
    */
-  // example2 match 
+   example2 match 
+     case PaymentDenied(msg) => println(msg)
+     case MissingAddress(msg) => println(msg)
 
 /**
  * MATCH TYPES
@@ -211,7 +219,8 @@ object opaque_types:
        * The scope of an opaque type has special privileges. Create a constructor for email that
        * takes a string, and returns an `Email`.
        */
-      def apply() = ???
+      //yay - compiler guarantees that the underlying type is being used at runtime
+      def apply(str: String): Email = str
     end Email
 
     /**
@@ -220,7 +229,7 @@ object opaque_types:
      * Define an extension method to retrieve the username of an email (the part before the '@' 
      * character).
      */
-    extension (e: Email) def username: String = ???
+    extension (e: Email) def username: String = e.takeWhile(_ != '@')
   end email_example
 
   import email_example._
@@ -230,14 +239,14 @@ object opaque_types:
    * 
    * Use the constructor you made to build an `Email` value given a `String`.
    */
-  lazy val exampleEmail: Email = ???
+  lazy val exampleEmail: Email = Email("broken")
 
   /**
    * EXERCISE 4
    * 
    * Try to pass the email you constructed to the function `printString` and note your findings.
    */
-  printString(???)
+  // printString(exampleEmail) //won't compile
 
   def printString(string: String): Unit = println(string)
 
@@ -249,7 +258,7 @@ object opaque_types:
      * relationship must be true and it will be "exported" outside the scope in which the opaque
      * type is defined.
      */
-    opaque type Natural = Int
+    opaque type Natural <: Int = Int
 
     object Natural:
       /**
@@ -258,7 +267,9 @@ object opaque_types:
        * Define a smart constructor that, given an `Int`, may or may not return a `Natural`, 
        * depending on whether the number is a natural number (non-negative) or not.
        */
-      def fromInt(i: Int): Option[Natural] = ???
+      def fromInt(i: Int): Option[Natural] = 
+        if i >= 0 then Some(i) else None
+
     end Natural
   end natural_example
 
@@ -270,16 +281,19 @@ object opaque_types:
    * Construct an example natural number from the number 5, and call `get` on the `Option` because
    * you know it is a natural number.
    */
-  lazy val exampleNatural: Natural = ???
+  lazy val exampleNatural: Natural = Natural.fromInt(123).get
 
   /**
    * EXERCISE 8
    * 
    * Try to pass the natural number to the function `printInt` and note your findings.
    */
-  printInt(???)
+  printInt(exampleNatural)
+  //printNatural(123) //doesn't compile
 
   def printInt(v: Int): Unit = println(v.toString())
+  
+  def printNatural(n: Natural): Unit = println(n.toString())
 
 /**
  * POLYMORPHIC FUNCTION TYPES
